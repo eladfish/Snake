@@ -12,19 +12,24 @@ blue = (0, 0, 255)
 dis_width = 600
 dis_height = 400
 
+
+programIcon = pygame.image.load('snakeIcon.png')
+pygame.display.set_icon(programIcon)
+
 dis = pygame.display.set_mode((dis_width, dis_height))
 pygame.display.set_caption('Snake game')
 
 clock = pygame.time.Clock()
 
 snake_block = 10
-snake_speed = 15
+snake_speed = 10
 
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
+food_font = pygame.font.SysFont("comicsansms", 20)
 
 
-def high_score(score):  # Show High Score of all times from txt file
+def high_score(score):  # Update and Show High Score of all times from txt file
     highScoreFile = open("High Score.txt", "r")
     highScore = highScoreFile.readline()
     if score > int(highScore):
@@ -60,6 +65,9 @@ def gameLoop():
     x1_change = 0
     y1_change = 0
 
+    yummyTextTime = 0
+    accelerateSpeed = 0
+
     snake_List = []
     Length_of_snake = 1
 
@@ -67,7 +75,6 @@ def gameLoop():
     foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
 
     while not game_over:
-
         while game_close:  # In case of losing check if the player wants another game.
             dis.fill(blue)
             message("Game Over! Press Q-Quit or C-Play Again", red)
@@ -107,9 +114,7 @@ def gameLoop():
         y1 += y1_change
         dis.fill(blue)
         pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])  # Adding the food
-        snake_Head = []
-        snake_Head.append(x1)
-        snake_Head.append(y1)
+        snake_Head = [x1, y1]
         snake_List.append(snake_Head)
         if len(snake_List) > Length_of_snake:
             del snake_List[0]
@@ -121,14 +126,24 @@ def gameLoop():
         our_snake(snake_block, snake_List)
         your_score(Length_of_snake - 1)
 
-        pygame.display.update()
-
         if x1 == foodx and y1 == foody:
             foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0
             foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0
             Length_of_snake += 1
+            yummyTextTime = snake_speed + accelerateSpeed
 
-        clock.tick(snake_speed)
+
+        if yummyTextTime > 0:
+            yummyTextTime -= 1
+            value = food_font.render("Yummy..!", True, yellow)
+            dis.blit(value, [0, 50])
+
+
+        pygame.display.update()
+
+        if (Length_of_snake-1).__divmod__(5)[1] == 0:
+            accelerateSpeed = ((Length_of_snake - 1) / 5) * 3
+        clock.tick(snake_speed + accelerateSpeed)
 
     pygame.quit()
     quit()
