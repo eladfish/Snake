@@ -3,7 +3,6 @@ import random
 
 pygame.init()
 
-white = (255, 255, 255)
 yellow = (255, 255, 102)
 black = (0, 0, 0)
 red = (255, 0, 0)
@@ -25,7 +24,18 @@ font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
 
 
-def your_score(score):
+def high_score(score):  # Show High Score of all times from txt file
+    highScoreFile = open("High Score.txt", "r")
+    highScore = highScoreFile.readline()
+    if score > int(highScore):
+        highScoreFile = open("High Score.txt", "w")
+        highScoreFile.write(str(score))
+    highScoreFile.close()
+    value = score_font.render("High Score of all times: " + str(highScore), True, yellow)
+    dis.blit(value, [0, 50])
+
+
+def your_score(score):  # Show current game score
     value = score_font.render("Your Score: " + str(score), True, yellow)
     dis.blit(value, [0, 0])
 
@@ -58,10 +68,11 @@ def gameLoop():
 
     while not game_over:
 
-        while game_close:
+        while game_close:  # In case of losing check if the player wants another game.
             dis.fill(blue)
             message("Game Over! Press Q-Quit or C-Play Again", red)
             your_score(Length_of_snake - 1)
+            high_score(Length_of_snake - 1)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -72,7 +83,7 @@ def gameLoop():
                     if event.key == pygame.K_c:
                         gameLoop()
 
-        for event in pygame.event.get():
+        for event in pygame.event.get():  # Check the event of key pressing.
             if event.type == pygame.QUIT:
                 game_over = True
             if event.type == pygame.KEYDOWN:
@@ -89,13 +100,13 @@ def gameLoop():
                     y1_change = snake_block
                     x1_change = 0
 
-        if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
+        if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:  # Check if the Snake hits the boundaries
             game_close = True
 
         x1 += x1_change
         y1 += y1_change
         dis.fill(blue)
-        pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])
+        pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])  # Adding the food
         snake_Head = []
         snake_Head.append(x1)
         snake_Head.append(y1)
